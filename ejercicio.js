@@ -96,8 +96,8 @@ class MeshDrawer
 		// 4. Obtenemos los IDs de los atributos de los vértices en los shaders
 
 		// ...
-
 		this.buffer = gl.createBuffer();
+		
 	}
 	
 	// Esta función se llama cada vez que el usuario carga un nuevo archivo OBJ.
@@ -109,7 +109,9 @@ class MeshDrawer
 	setMesh( vertPos, texCoords )
 	{
 		// [COMPLETAR] Actualizar el contenido del buffer de vértices
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertPos));
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertPos), gl.STATIC_DRAW);
 
 		this.numTriangles = vertPos.length / 3;
 	}
@@ -138,10 +140,13 @@ class MeshDrawer
 	    // 3.Binding de los buffers
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+
+		gl.vertexAttribPointer( this.pos, 3, gl.FLOAT, false, 0, 0 );
+		gl.enableVertexAttribArray( this.pos );
 		
 		// ...
 		// Dibujamos
-		gl.drawArrays( gl.TRIANGLES, 0, this.numTriangles * 3 );
+		gl.drawArrays( gl.TRIANGLES, 0, this.numTriangles);
 	}
 	
 	// Esta función se llama para setear una textura sobre la malla
