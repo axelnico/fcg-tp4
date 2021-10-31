@@ -41,7 +41,24 @@
 
 function GetModelViewProjection( projectionMatrix, translationX, translationY, translationZ, rotationX, rotationY )
 {
-	// [COMPLETAR] Modificar el código para formar la matriz de transformación.
+
+	// Matriz de rotacion en X
+	var rotX = [
+		1, 0, 0, 0,
+		0, Math.cos(rotationX), Math.sin(rotationX), 0,
+		0, -Math.sin(rotationX), Math.cos(rotationX),0,
+		0, 0, 0, 1
+	];
+
+	// Matriz de rotacion en Y
+	var rotY = [
+		Math.cos(rotationY), 0, -Math.sin(rotationY), 0,
+		0, 1, 0, 0,
+		Math.sin(rotationY), 0, Math.cos(rotationY),0,
+		0, 0, 0, 1
+	];
+
+	var rotationXY = MatrixMult(rotY, rotX);
 
 	// Matriz de traslación
 	var trans = [
@@ -52,7 +69,8 @@ function GetModelViewProjection( projectionMatrix, translationX, translationY, t
 	];
 
 	var mvp = MatrixMult( projectionMatrix, trans );
-	return mvp;
+
+	return MatrixMult(mvp, rotationXY);
 }
 
 // [COMPLETAR] Completar la implementación de esta clase.
@@ -64,14 +82,22 @@ class MeshDrawer
 		// [COMPLETAR] inicializaciones
 
 		// 1. Compilamos el programa de shaders
+
+		this.prog = InitShaderProgram(meshVS, meshFS);
 		
 		// 2. Obtenemos los IDs de las variables uniformes en los shaders
 
+		this.mvp = gl.getUniformLocation(this.prog, 'mvp');
+
 		// 3. Obtenemos los IDs de los atributos de los vértices en los shaders
+
+		this.pos = gl.getAttribLocation(this.prog, 'pos');
 
 		// 4. Obtenemos los IDs de los atributos de los vértices en los shaders
 
 		// ...
+
+		this.buffer = gl.createBuffer();
 	}
 	
 	// Esta función se llama cada vez que el usuario carga un nuevo archivo OBJ.
@@ -83,6 +109,8 @@ class MeshDrawer
 	setMesh( vertPos, texCoords )
 	{
 		// [COMPLETAR] Actualizar el contenido del buffer de vértices
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertPos));
+
 		this.numTriangles = vertPos.length / 3;
 	}
 	
@@ -100,14 +128,20 @@ class MeshDrawer
 		// [COMPLETAR] Completar con lo necesario para dibujar la colección de triángulos en WebGL
 		
 		// 1. Seleccionamos el shader
+
+		gl.useProgram(this.prog);
 	
 		// 2. Setear matriz de transformacion
+
+		gl.uniformMatrix4fv(this.mvp, false, trans);
 		
 	    // 3.Binding de los buffers
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 		
 		// ...
 		// Dibujamos
-		// gl.drawArrays( gl.TRIANGLES, 0, this.numTriangles * 3 );
+		gl.drawArrays( gl.TRIANGLES, 0, this.numTriangles * 3 );
 	}
 	
 	// Esta función se llama para setear una textura sobre la malla
