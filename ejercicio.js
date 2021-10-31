@@ -89,6 +89,8 @@ class MeshDrawer
 
 		this.mvp = gl.getUniformLocation(this.prog, 'mvp');
 
+		this.swap = gl.getUniformLocation(this.prog, 'swap');
+
 		// 3. Obtenemos los IDs de los atributos de los vértices en los shaders
 
 		this.pos = gl.getAttribLocation(this.prog, 'pos');
@@ -97,6 +99,14 @@ class MeshDrawer
 
 		// ...
 		this.buffer = gl.createBuffer();
+
+		gl.useProgram(this.prog);
+
+		var identityMatrix = [1,0,0,0,
+			0,1,0,0,
+			0,0,1,0,
+			0,0,0,1]
+        gl.uniformMatrix4fv(this.swap, false, identityMatrix);
 		
 	}
 	
@@ -120,6 +130,20 @@ class MeshDrawer
 	// El argumento es un boleano que indica si el checkbox está tildado
 	swapYZ( swap )
 	{
+		gl.useProgram(this.prog);
+		if (swap){
+			var swap = [1,0,0,0,
+			            0,0,1,0,
+					    0,1,0,0,
+					    0,0,0,1]
+			gl.uniformMatrix4fv(this.swap, false, swap);
+		} else {
+			var identityMatrix = [1,0,0,0,
+				                  0,1,0,0,
+								  0,0,1,0,
+								  0,0,0,1]
+			gl.uniformMatrix4fv(this.swap, false, identityMatrix);
+		}
 		// [COMPLETAR] Setear variables uniformes en el vertex shader
 	}
 	
@@ -134,9 +158,8 @@ class MeshDrawer
 		gl.useProgram(this.prog);
 	
 		// 2. Setear matriz de transformacion
-
 		gl.uniformMatrix4fv(this.mvp, false, trans);
-		
+
 	    // 3.Binding de los buffers
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
@@ -170,9 +193,10 @@ class MeshDrawer
 var meshVS = `
 	attribute vec3 pos;
 	uniform mat4 mvp;
+	uniform mat4 swap;
 	void main()
 	{ 
-		gl_Position = mvp * vec4(pos,1);
+		gl_Position = mvp * swap * vec4(pos,1) ;
 	}
 `;
 
