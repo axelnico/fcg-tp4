@@ -177,13 +177,29 @@ class MeshDrawer
 	setTexture( img )
 	{
 		// [COMPLETAR] Binding de la textura
-	}
+		this.textura = gl.createTexture();
+
+		gl.bindTexture(gl.TEXTURE_2D, this.textura);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
+		
+		gl.generateMipmap(gl.TEXTURE_2D);
+		gl.activateTexture(gl.TEXTURE0);// aca o en setTexture?			
+		gl.bindTexture(gl.TEXTURE_2D, this.textura);
+		}
 	
 	// Esta función se llama cada vez que el usuario cambia el estado del checkbox 'Mostrar textura'
 	// El argumento es un boleano que indica si el checkbox está tildado
 	showTexture( show )
 	{
 		// [COMPLETAR] Setear variables uniformes en el fragment shader
+
+	
+
+		this.sampler = gl.getUniformLocation(this.prog, 'texGPU');
+		gl.useProgram(this.prog);
+		gl.uniform1i(this.sampler,0);
+		
+		
 	}
 }
 
@@ -193,7 +209,8 @@ class MeshDrawer
 var meshVS = `
 	attribute vec3 pos;
 	uniform mat4 mvp;
-	uniform mat4 swap;
+	uniform mat4 swap;	
+	varying vec2 texCoord;
 	void main()
 	{ 
 		gl_Position = mvp * swap * vec4(pos,1) ;
@@ -203,8 +220,10 @@ var meshVS = `
 // Fragment Shader
 var meshFS = `
 	precision mediump float;
+	uniform sampler2D texGPU;
+	varying vec2 texCoord;
 	void main()
 	{		
-		gl_FragColor = vec4( 1, 0, 0, 1 );
+		gl_FragColor = texture2D(texGPU, texCoord);
 	}
 `;
