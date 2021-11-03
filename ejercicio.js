@@ -58,7 +58,7 @@ function GetModelViewProjection( projectionMatrix, translationX, translationY, t
 		0, 0, 0, 1
 	];
 
-	var rotationXY = MatrixMult(rotY, rotX);
+	var rotationXY = MatrixMult(rotX, rotY);
 
 	// Matriz de traslación
 	var trans = [
