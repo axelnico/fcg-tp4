@@ -111,7 +111,15 @@ class MeshDrawer
 
 		gl.uniform1i(this.useTexture,0);
 
+		// Por defecto usamos una textura "dummy" con el color todo blanco
+		// Para evitar un warning de que no hay textura asociada a la unidad 0 porque se usa en el fragment shader
+		// Tambien se podria usar esta textura blanca y multiplicarla por un color en el fragment shader y asociarle el resultado
+		// a gl_FragColor, en vez de usar 
+		// la variable uniforme de useTexture y tener un condicional. Se podria simplemente al cambiar el estado del checkbox
+		// cambiar la textura de la blanca a la que tiene la imagen y el color del blanco a un color a mostrar cuando no se desea mostrar la textura
 		this.textura = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_2D,this.textura);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255,255,255,255]));
 
 		// determina el estado del checkbox para mostrar o no la textura. Arranca por defecto encendido
 		this.show = true;
@@ -180,7 +188,10 @@ class MeshDrawer
 		gl.enableVertexAttribArray( this.coord );
 		
 		// Dibujamos
-		gl.drawArrays( gl.TRIANGLES, 0, this.numTriangles * 3);
+		// Solo si hay modelo cargado, para evitar un warning
+		if(this.numTriangles > 0){
+			gl.drawArrays( gl.TRIANGLES, 0, this.numTriangles * 3);
+		}
 	}
 	
 	// Esta función se llama para setear una textura sobre la malla
